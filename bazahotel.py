@@ -196,6 +196,51 @@ def tabelaIznajmljuje(mycursor):
         brojac -= 1
     print("")
 
+def ispisTabele(staSelektujes,imeTabele, mycursor):
+    imenaKolona= []
+    kolone = []
+    imena = []
+    mycursor.execute("select "+staSelektujes+" from " + imeTabele)
+
+    for i in mycursor.description:
+        imena.append(str(i[0]))
+        
+    for i in range(0,len(imena)):
+        if (i == (len(imena)-1)):
+            print(str(imena[i]).upper())
+        else:
+            print(str(imena[i].upper())+(" " * (30-len(imena[i]))),end = ' ')
+    print("_" * 145)
+
+
+    for x in mycursor:
+        for y in range(len(imena)):
+            podatak = str(x[y])
+            if (y != (len(imena)-1)):
+                try:
+                    if x[y]<10:
+                        print(podatak+ (29*" "),end = " ")
+                    elif x[y]>=10:
+                        print(podatak+ (28*" "),end = " ")
+
+                    else:
+                        print(podatak+(" " * (30-len(podatak))),end = ' ')
+
+                except:
+                    print(podatak+(" " * (30-len(podatak))),end = ' ')
+            else:
+                try:
+                    if x[y]<10:
+                        print(podatak)
+                    elif x[y]>=10:
+                        print(podatak)
+
+                    else:
+                        print(podatak)
+
+                except:
+                    print(podatak)
+    print("")
 
 #__________________________________________________________
 
@@ -289,20 +334,20 @@ if (izbor == 1):
 
 time.sleep(3)
 #Upisivanje u tabele
-tabelaGost(mycursor)
-tabelaStrani(mycursor)
-tabelaDomaci(mycursor)
-tabelaHotel(mycursor)
-tabelaVrstaSobe(mycursor)
-tabelaSoba(mycursor)
-tabelaIznajmljuje(mycursor)
+#tabelaGost(mycursor)
+#tabelaStrani(mycursor)
+#tabelaDomaci(mycursor) 
+#tabelaHotel(mycursor)
+#tabelaVrstaSobe(mycursor)
+#tabelaSoba(mycursor)
+#tabelaIznajmljuje(mycursor)
 
-
-
-
-
-
-
-
+ispisTabele("*","gost" , mycursor)
+ispisTabele("*","strani" , mycursor)
+ispisTabele("*","domaci" , mycursor)
+ispisTabele("*","hotel" , mycursor)
+ispisTabele("*","vrsta_sobe" , mycursor)
+ispisTabele("*","hotel" , mycursor)
+ispisTabele("*","iznajmljuje" , mycursor)
 
 
