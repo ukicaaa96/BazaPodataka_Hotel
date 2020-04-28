@@ -196,6 +196,11 @@ def tabelaIznajmljuje(mycursor):
         brojac -= 1
     print("")
 
+def tabelaBrojGostiju(mycursor):
+    komanda = "INSERT INTO brojGostiju (id,domaciGosti,straniGosti,ukupno) VALUES (1,0,0,0)"
+    mycursor.execute(komanda)
+    
+
 def ispisTabele(staSelektujes,imeTabele, mycursor):
     imenaKolona= []
     kolone = []
@@ -242,14 +247,20 @@ def ispisTabele(staSelektujes,imeTabele, mycursor):
                     print(podatak)
     print("")
 
-#__________________________________________________________
+
+def brisanje(mycursor):
+    mycursor.execute("select * from hotel")
+
+    for i in mycursor:
+        i = str(i[1])+","+str(i[2])
+        for j in mycursor:
+            j = str(i[1])+",",str(i[2])
+            if(i==j):
+                mycursor.execute("delete from " + hotel + " where id_hotela = " + str(i[0]))
+#____________________________________________________________________________
 
 imeBaze = input("Unesite ime vase baze podataka: ")
 passBaze = input("Unesite sifru: ")
-print("Da li zelis da kreiras tabele:")
-print("1.Da")
-print("2.Ne")
-izbor = int(input(">>>"))
 
 
 db = mysql.connector.connect(
@@ -262,92 +273,157 @@ db = mysql.connector.connect(
 mycursor = db.cursor()
 
 
+while True:
 
-if (izbor == 1):
-    tabelaGost = """CREATE TABLE gost (id_gosta INTEGER UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    ime VARCHAR(50) NULL,
-    prezime VARCHAR(50) NULL,
-    JMBG VARCHAR(50) NULL
-    )"""
+    print("1.Kreiraj tabele")
+    print("2.Popuni tabele")
+    izbor = int(input(">>>"))
 
-    tabelaStrani = """CREATE TABLE strani (
-    drzava VARCHAR(50) NULL,
-    br_pasosa VARCHAR(10) NULL,
-    gost_id INTEGER UNSIGNED NOT NULL ,
-    FOREIGN KEY(gost_id) REFERENCES gost (id_gosta)
-    )"""
+    if (izbor == 1):
+ 
+        #Kreiranje tabela
+        tabelaGosti = """CREATE TABLE gost (id_gosta INTEGER UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
+        ime VARCHAR(50) NULL,
+        prezime VARCHAR(50) NULL,
+        JMBG VARCHAR(50) NULL
+        )"""
 
-    tabelaDomaci = """CREATE TABLE domaci (
-    grad VARCHAR(50) NULL,
-    adresa VARCHAR(80) NULL,
-    gost_id INTEGER UNSIGNED NOT NULL ,
-    FOREIGN KEY(gost_id) REFERENCES gost (id_gosta)
-    )"""
+        tabelaStraniG = """CREATE TABLE strani (
+        drzava VARCHAR(50) NULL,
+        br_pasosa VARCHAR(10) NULL,
+        gost_id INTEGER UNSIGNED NOT NULL ,
+        FOREIGN KEY(gost_id) REFERENCES gost (id_gosta)
+        )"""
 
-    tabelaHotel = """CREATE TABLE hotel (
-    id_hotela INTEGER UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    naziv VARCHAR(50) NOT NULL,
-    kategorija VARCHAR(50) NOT NULL 
-    );"""
+        tabelaDomaciG = """CREATE TABLE domaci (
+        grad VARCHAR(50) NULL,
+        adresa VARCHAR(80) NULL,
+        gost_id INTEGER UNSIGNED NOT NULL ,
+        FOREIGN KEY(gost_id) REFERENCES gost (id_gosta)
+        )"""
 
-    tabelaVrstaSobe = """CREATE TABLE vrsta_sobe (
-    id_vrste INTEGER UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    opis TEXT NULL,
-    cenaDan INTEGER NOT NULL
-    )"""
+        tabelaHoteli = """CREATE TABLE hotel (
+        id_hotela INTEGER UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
+        naziv VARCHAR(50) NOT NULL,
+        kategorija VARCHAR(50) NOT NULL 
+        );"""
 
-    tabelaSoba = """CREATE TABLE soba (
-    id_sobe INTEGER UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    opis TEXT NULL,
-    hotel_id INTEGER UNSIGNED NOT NULL,
-    vrsta_id INTEGER UNSIGNED NOT NULL ,
-    FOREIGN KEY(vrsta_id) REFERENCES vrsta_sobe (id_vrste),
-    FOREIGN KEY(hotel_id) REFERENCES hotel (id_hotela)
-    )"""
+        tabelaVrste_Sobe = """CREATE TABLE vrsta_sobe (
+        id_vrste INTEGER UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
+        opis TEXT NULL,
+        cenaDan INTEGER NOT NULL
+        )"""
 
-    tabelaIznajmljuje = """CREATE TABLE iznajmljuje (
-    datumPocetka DATETIME NOT NULL,
-    datumZavrsetka DATETIME NOT NULL,
-    gost_id INTEGER UNSIGNED NOT NULL,
-    soba_id INTEGER UNSIGNED NOT NULL,
-    FOREIGN KEY(gost_id) REFERENCES gost (id_gosta),
-    FOREIGN KEY(soba_id) REFERENCES soba (id_sobe)
-    )"""
+        tabelaSobe = """CREATE TABLE soba (
+        id_sobe INTEGER UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
+        opis TEXT NULL,
+        hotel_id INTEGER UNSIGNED NOT NULL,
+        vrsta_id INTEGER UNSIGNED NOT NULL ,
+        FOREIGN KEY(vrsta_id) REFERENCES vrsta_sobe (id_vrste),
+        FOREIGN KEY(hotel_id) REFERENCES hotel (id_hotela)
+        )"""
+
+        tabelaIznajmljujeSobu = """CREATE TABLE iznajmljuje (
+        datumPocetka DATETIME NOT NULL,
+        datumZavrsetka DATETIME NOT NULL,
+        gost_id INTEGER UNSIGNED NOT NULL,
+        soba_id INTEGER UNSIGNED NOT NULL,
+        FOREIGN KEY(gost_id) REFERENCES gost (id_gosta),
+        FOREIGN KEY(soba_id) REFERENCES soba (id_sobe)
+        )"""
+        
+        tabelaBrGostiju = """CREATE TABLE brojGostiju (
+        id INTEGER UNSIGNED NOT NULL PRIMARY KEY,
+        domaciGosti INT NULL ,
+        straniGosti INT NULL,
+        ukupno INT NULL)"""
+        
+        #Kreiranje tabela
+        #mycursor.execute(tabelaGosti)
+        print("Kreirana tabela: Gost")
+        time.sleep(1)
+       # mycursor.execute(tabelaStraniG)
+        print("Kreirana tabela: Strani")
+       # time.sleep(1)
+       # mycursor.execute(tabelaDomaciG)
+        print("Kreirana tabela: Domaci")
+        time.sleep(1)
+      #  mycursor.execute(tabelaHoteli)
+        print("Kreirana tabela: Hotel")
+        time.sleep(1)
+       # mycursor.execute(tabelaVrste_Sobe)
+        print("Kreirana tabela: Vrsta_sobe")
+        time.sleep(1)
+      #  mycursor.execute(tabelaSobe)
+        print("Kreirana tabela: Soba")
+        time.sleep(1)
+      #  mycursor.execute(tabelaIznajmljujeSobu)
+        print("Kreirana tabela: Iznajmljuje")
+        time.sleep(1)
+        mycursor.execute(tabelaBrGostiju)
+        print("Kreirana tabela: brojGostiju")
 
 
+        mycursor.execute("""CREATE TRIGGER povecajBrojGostiju
+        BEFORE INSERT ON gost
+        FOR EACH ROW
+        UPDATE brojGostiju SET ukupno = ukupno +1
+        WHERE id = 1""")
 
-    #Kreiranje tabela
-    mycursor.execute(tabelaGost)
-    time.sleep(1)
-    mycursor.execute(tabelaStrani)
-    time.sleep(1)
-    mycursor.execute(tabelaDomaci)
-    time.sleep(1)
-    mycursor.execute(tabelaHotel)
-    time.sleep(1)
-    mycursor.execute(tabelaVrstaSobe)
-    time.sleep(1)
-    mycursor.execute(tabelaSoba)
-    time.sleep(1)
-    mycursor.execute(tabelaIznajmljuje)
+        
+        mycursor.execute("""CREATE TRIGGER povecajStrance
+        BEFORE INSERT ON strani
+        FOR EACH ROW
+        UPDATE brojGostiju SET straniGosti = straniGosti +1
+        WHERE id = 1""")
 
 
-time.sleep(3)
-#Upisivanje u tabele
-#tabelaGost(mycursor)
-#tabelaStrani(mycursor)
-#tabelaDomaci(mycursor) 
-#tabelaHotel(mycursor)
-#tabelaVrstaSobe(mycursor)
-#tabelaSoba(mycursor)
-#tabelaIznajmljuje(mycursor)
+        mycursor.execute("""CREATE TRIGGER povecajDomace
+        BEFORE INSERT ON domaci
+        FOR EACH ROW
+        UPDATE brojGostiju SET domaciGosti= domaciGosti+1
+        WHERE id = 1""")
 
-ispisTabele("*","gost" , mycursor)
-ispisTabele("*","strani" , mycursor)
-ispisTabele("*","domaci" , mycursor)
-ispisTabele("*","hotel" , mycursor)
-ispisTabele("*","vrsta_sobe" , mycursor)
-ispisTabele("*","hotel" , mycursor)
-ispisTabele("*","iznajmljuje" , mycursor)
+        print("Kreirani TRIGGERS za tabale (GOST,STRANI,DOMACI)")
+        print("")
+
+    elif izbor == 2:
+                 
+        #Popuni tabele
+        try:
+            tabelaBrojGostiju(mycursor)
+        except:
+            print("Podaci su upisani")
+        tabelaGost(mycursor)
+        tabelaStrani(mycursor)
+        tabelaDomaci(mycursor) 
+        tabelaHotel(mycursor)
+        tabelaVrstaSobe(mycursor)
+        tabelaSoba(mycursor)
+        tabelaIznajmljuje(mycursor)
+
+        ispisTabele("*","gost" , mycursor)
+        ispisTabele("*","strani" , mycursor)
+        ispisTabele("*","domaci" , mycursor)
+        ispisTabele("*","hotel" , mycursor)
+        ispisTabele("*","vrsta_sobe" , mycursor)
+        ispisTabele("*","soba" , mycursor)
+        ispisTabele("*","iznajmljuje" , mycursor)
+        ispisTabele("*","brojGostiju" , mycursor)
 
 
+        brisanje(mycursor)
+
+
+def brisanje(mycursor):
+    mycursor.execute("select * from hotel")
+
+    for i in mycursor:
+        i = str(i[1])+","+str(i[2])
+        for j in mycursor:
+            j = str(i[1])+",",str(i[2])
+            if(i==j):
+                mycursor.execute("delete from " + hotel + " where id_hotela = " + str(j[0]))
+                print("delete from " + hotel + " where id_hotela = " + str(j[0]))
+            
+    
