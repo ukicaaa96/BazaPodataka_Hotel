@@ -50,6 +50,7 @@ def tabelaDomaci(mycursor):
 #TABELA STRANI       
 def tabelaStrani(mycursor):
     print("POPUNJAVANJE TABELE STRANI")
+    
     drzave = ["USA", "Engleska", "Kanada", "Nemacka", "Holandija", "Francuska"]
     for i in range(1,30,2):
         drzava = random.choice(drzave)
@@ -63,7 +64,8 @@ def tabelaStrani(mycursor):
 #TABELA HOTEL
 def tabelaHotel(mycursor):
     print("POPUNJAVANJE TABELE HOTEL")
-    #cardHeading - hoteli
+    
+    #imeKlase = cardHeading - nazivi za hotel
     listaHotela = []
     listaHotelaFinal = []
     karakteri = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNMčČćĆšŠđĐžŽ- .,0123456789"
@@ -100,6 +102,7 @@ def tabelaHotel(mycursor):
 #TABELA VRSTA_SOBE
 def tabelaVrstaSobe(mycursor):
     print("POPUNJAVANJE TABELE VRSTA_SOBE")
+    
     #Svaki hotel ima 3 vrste soba(Standard,Porodicni,Apartman)
     opisi = ["Standard: Opremu hotelske sobe čine: krevet, noćni ormaric "+
             "ili polica uz svako mesto za spavanje, ormar ili ugradna garderoba,"+
@@ -119,35 +122,37 @@ def tabelaVrstaSobe(mycursor):
             ]
 
 
-    #biramo jednu sobu iz liste opisi
-    #i jedan nasumicni broj koji predstavlja cenu na dan
+
     for i in range(0,3):
         komanda = "INSERT INTO vrsta_sobe (opis,cenaDan) VALUES ("+"'"+str(opisi[i])+"'"+","+"'"+str(random.randint(100,230))+"'"+")"
         mycursor.execute(komanda)
         db.commit()
         print(komanda)
-    print("")        
+    print("")
+    
 #TABELA SOBA
 def tabelaSoba(mycursor):
     print("POPUNJAVANJE TABELE SOBA")
-    #random biramo dodatni opis sobe
+    
+
     dodatniOpisSobe = ["Soba je sa pogledom na planinu, poseduje bazen u dvoristu, garazu za automobil i djakuzi",
                    "Soba je sa pogledom na setaliste, velikom terasom i opremljenom kuhinjom",
                    "Soba je sa pogledom na dvoriste, tokom boravka u ovoj sobi ce biti promenjena posteljina na 5 dana",
                    "Soba poseduje Sony playstation 4, koji gosti mogu da igraju potpuno besplatno, dostupne igrice su (PES-20, FIFA 19 , Call of Duty, GTA V)",
                    "U ovoj sobi je dozvoljen pristup kucnim ljubimcima"
                    ]
-    #nasumicno kreiramo ID za hotel i vrstu (id hotela i vrste moraju da postoje, nije moguce imati id hotela 10, ako imam samo 9 hotela u bazi)
+
     for i in range(1,30):
         id_hotela = random.randint(1,9)
         id_vrste = random.randint(1,3)
         opis = random.choice(dodatniOpisSobe) 
-        #komanda za popunjavanje tabele SOBA
+
         komanda="INSERT INTO soba (opis,hotel_id,vrsta_id) VALUES ("+"'"+str(opis)+"'"+","+"'"+str(id_hotela)+"'"+","+"'"+str(id_vrste)+"'"+")"
         mycursor.execute(komanda)
         db.commit()
         print(komanda)
-    print("")   
+    print("")
+    
 #TABELA IZNAJMLJUJE
 def tabelaIznajmljuje(mycursor):
     print("POPUNJAVANJE TABELE IZNAJMLJUJE")
@@ -173,7 +178,8 @@ def tabelaIznajmljuje(mycursor):
         if sekunde1<10:
             sekunde1 = "0"+str(sekunde1)
 
-        #Zavrsetak 
+        #Zavrsetak
+        #Svaki gost napusta sobu u 9 ujutru 
         godina2 = 2020
         dan2 = random.randint(1,28)
         mesec2 = random.randint(1,12)
@@ -207,6 +213,7 @@ def ispisTabele(staSelektujes,imeTabele, mycursor):
     imena = []
     mycursor.execute("select "+staSelektujes+" from " + imeTabele)
 
+    #imena kolona (id, ime ,prezime...)
     for i in mycursor.description:
         imena.append(str(i[0]))
         
@@ -217,7 +224,7 @@ def ispisTabele(staSelektujes,imeTabele, mycursor):
             print(str(imena[i].upper())+(" " * (30-len(imena[i]))),end = ' ')
     print("_" * 145)
 
-
+    #podaci iz kolona
     for x in mycursor:
         for y in range(len(imena)):
             podatak = str(x[y])
@@ -247,16 +254,6 @@ def ispisTabele(staSelektujes,imeTabele, mycursor):
                     print(podatak)
     print("")
 
-
-def brisanje(mycursor):
-    mycursor.execute("select * from hotel")
-
-    for i in mycursor:
-        i = str(i[1])+","+str(i[2])
-        for j in mycursor:
-            j = str(i[1])+",",str(i[2])
-            if(i==j):
-                mycursor.execute("delete from " + hotel + " where id_hotela = " + str(i[0]))
 #____________________________________________________________________________
 
 imeBaze = input("Unesite ime vase baze podataka: ")
@@ -292,14 +289,14 @@ while True:
         drzava VARCHAR(50) NULL,
         br_pasosa VARCHAR(10) NULL,
         gost_id INTEGER UNSIGNED NOT NULL ,
-        FOREIGN KEY(gost_id) REFERENCES gost (id_gosta)
+        FOREIGN KEY(gost_id) REFERENCES gost (id_gosta) ON DELETE CASCADE
         )"""
 
         tabelaDomaciG = """CREATE TABLE domaci (
         grad VARCHAR(50) NULL,
         adresa VARCHAR(80) NULL,
         gost_id INTEGER UNSIGNED NOT NULL ,
-        FOREIGN KEY(gost_id) REFERENCES gost (id_gosta)
+        FOREIGN KEY(gost_id) REFERENCES gost (id_gosta) ON DELETE CASCADE
         )"""
 
         tabelaHoteli = """CREATE TABLE hotel (
@@ -319,8 +316,8 @@ while True:
         opis TEXT NULL,
         hotel_id INTEGER UNSIGNED NOT NULL,
         vrsta_id INTEGER UNSIGNED NOT NULL ,
-        FOREIGN KEY(vrsta_id) REFERENCES vrsta_sobe (id_vrste),
-        FOREIGN KEY(hotel_id) REFERENCES hotel (id_hotela)
+        FOREIGN KEY(vrsta_id) REFERENCES vrsta_sobe (id_vrste) ON DELETE CASCADE,
+        FOREIGN KEY(hotel_id) REFERENCES hotel (id_hotela) ON DELETE CASCADE
         )"""
 
         tabelaIznajmljujeSobu = """CREATE TABLE iznajmljuje (
@@ -328,8 +325,8 @@ while True:
         datumZavrsetka DATETIME NOT NULL,
         gost_id INTEGER UNSIGNED NOT NULL,
         soba_id INTEGER UNSIGNED NOT NULL,
-        FOREIGN KEY(gost_id) REFERENCES gost (id_gosta),
-        FOREIGN KEY(soba_id) REFERENCES soba (id_sobe)
+        FOREIGN KEY(gost_id) REFERENCES gost (id_gosta) ON DELETE CASCADE,
+        FOREIGN KEY(soba_id) REFERENCES soba (id_sobe) ON DELETE CASCADE
         )"""
         
         tabelaBrGostiju = """CREATE TABLE brojGostiju (
@@ -339,31 +336,31 @@ while True:
         ukupno INT NULL)"""
         
         #Kreiranje tabela
-        #mycursor.execute(tabelaGosti)
+        mycursor.execute(tabelaGosti)
         print("Kreirana tabela: Gost")
         time.sleep(1)
-       # mycursor.execute(tabelaStraniG)
+        mycursor.execute(tabelaStraniG)
         print("Kreirana tabela: Strani")
-       # time.sleep(1)
-       # mycursor.execute(tabelaDomaciG)
+        time.sleep(1)
+        mycursor.execute(tabelaDomaciG)
         print("Kreirana tabela: Domaci")
         time.sleep(1)
-      #  mycursor.execute(tabelaHoteli)
+        mycursor.execute(tabelaHoteli)
         print("Kreirana tabela: Hotel")
         time.sleep(1)
-       # mycursor.execute(tabelaVrste_Sobe)
+        mycursor.execute(tabelaVrste_Sobe)
         print("Kreirana tabela: Vrsta_sobe")
         time.sleep(1)
-      #  mycursor.execute(tabelaSobe)
+        mycursor.execute(tabelaSobe)
         print("Kreirana tabela: Soba")
         time.sleep(1)
-      #  mycursor.execute(tabelaIznajmljujeSobu)
+        mycursor.execute(tabelaIznajmljujeSobu)
         print("Kreirana tabela: Iznajmljuje")
         time.sleep(1)
         mycursor.execute(tabelaBrGostiju)
         print("Kreirana tabela: brojGostiju")
 
-
+        #TRIGGERS
         mycursor.execute("""CREATE TRIGGER povecajBrojGostiju
         BEFORE INSERT ON gost
         FOR EACH ROW
@@ -384,13 +381,14 @@ while True:
         UPDATE brojGostiju SET domaciGosti= domaciGosti+1
         WHERE id = 1""")
 
-        print("Kreirani TRIGGERS za tabale (GOST,STRANI,DOMACI)")
+        print("Kreirani TRIGGERS za tabele (GOST,STRANI,DOMACI)")
         print("")
 
     elif izbor == 2:
                  
         #Popuni tabele
         try:
+            #Samo prvi put popunjavamo tabelu, naredni put ce to uraditi TRIGGER
             tabelaBrojGostiju(mycursor)
         except:
             print("Podaci su upisani")
@@ -401,29 +399,15 @@ while True:
         tabelaVrstaSobe(mycursor)
         tabelaSoba(mycursor)
         tabelaIznajmljuje(mycursor)
+        print("Svi podaci su uspesno upisani u tabele")
+        
+        #ispisi sve  tabele
+        #ispisTabele("*","gost" , mycursor)
+        #ispisTabele("*","strani" , mycursor)
+        #ispisTabele("*","domaci" , mycursor)
+        #ispisTabele("*","hotel" , mycursor)
+        #ispisTabele("*","vrsta_sobe" , mycursor)
+        #ispisTabele("*","soba" , mycursor)
+        #ispisTabele("*","iznajmljuje" , mycursor)
+        #ispisTabele("*","brojGostiju" , mycursor)
 
-        ispisTabele("*","gost" , mycursor)
-        ispisTabele("*","strani" , mycursor)
-        ispisTabele("*","domaci" , mycursor)
-        ispisTabele("*","hotel" , mycursor)
-        ispisTabele("*","vrsta_sobe" , mycursor)
-        ispisTabele("*","soba" , mycursor)
-        ispisTabele("*","iznajmljuje" , mycursor)
-        ispisTabele("*","brojGostiju" , mycursor)
-
-
-        brisanje(mycursor)
-
-
-def brisanje(mycursor):
-    mycursor.execute("select * from hotel")
-
-    for i in mycursor:
-        i = str(i[1])+","+str(i[2])
-        for j in mycursor:
-            j = str(i[1])+",",str(i[2])
-            if(i==j):
-                mycursor.execute("delete from " + hotel + " where id_hotela = " + str(j[0]))
-                print("delete from " + hotel + " where id_hotela = " + str(j[0]))
-            
-    
